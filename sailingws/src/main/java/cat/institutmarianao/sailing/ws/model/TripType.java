@@ -40,6 +40,7 @@ public class TripType implements Serializable {
 	}
 
 	/* Validation */
+	@NotNull
 	/* JPA */
 	@Id
 	/* Lombok */
@@ -71,7 +72,7 @@ public class TripType implements Serializable {
 	/* JPA */
 	@ElementCollection
 	@CollectionTable
-	@Column(name="departure")
+	@Column(name = "departure")
 	@Temporal(TemporalType.TIME)
 	private List<Date> departures;
 

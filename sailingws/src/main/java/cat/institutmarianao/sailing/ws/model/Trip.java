@@ -6,7 +6,21 @@ import java.util.List;
 
 import org.hibernate.annotations.Formula;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +28,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /* JPA annotations */
+@Entity
+@Table(name = "trips")
 /* Lombok */
 @Data
 @NoArgsConstructor
@@ -34,26 +50,34 @@ public class Trip implements Serializable {
 	}
 
 	/* Validation */
+	@NotNull
 	/* JPA */
+	@Id
 	/* Lombok */
 	@EqualsAndHashCode.Include
 	/* JSON */
 	private Long id;
 
 	/* JPA */
+	@OneToOne
 	private TripType type;
 
 	/* Validation */
+	@NotNull
 	/* JPA */
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "client_username", referencedColumnName = "username")
 	private Client client;
 
 	private int places;
 
 	/* Validation */
+	@NotNull
 	/* JPA */
-	private List<@Valid Action> tracking;
 
-	/* JPA */
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "trip", orphanRemoval = true)
+	private List<@Valid Action> tracking;
+	@Enumerated(EnumType.STRING)
 	/* Hibernate */
 	@Formula("(SELECT CASE a.type WHEN '" + Action.BOOKING + "' THEN '" + Trip.RESERVED + "' WHEN '"
 			+ Action.RESCHEDULING + "' THEN '" + Trip.RESCHEDULED + "' WHEN '" + Action.CANCELLATION + "' THEN '"
@@ -65,9 +89,13 @@ public class Trip implements Serializable {
 	private Status status;
 
 	/* Validation */
+	@NotNull
 	/* JPA */
+	@Temporal(TemporalType.DATE)
 	private Date date;
 
 	/* JPA */
+	@Column(name = "departure")
+	@Temporal(TemporalType.TIME)
 	private Date departure;
 }

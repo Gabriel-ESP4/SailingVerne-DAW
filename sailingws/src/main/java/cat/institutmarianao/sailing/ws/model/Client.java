@@ -2,14 +2,15 @@ package cat.institutmarianao.sailing.ws.model;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /* JPA annotations */
-/* An employee is identified in the user table with role=EMPLOYEE */
 @Entity
 @DiscriminatorValue(value = "CLIENT")
 /* Lombok */
@@ -25,10 +26,13 @@ public class Client extends User implements Serializable {
 
 	/* Validation */
 	// @NotBlank(groups = OnUserCreate.class)
+	@NotNull
 	/* JPA */
+	@Column(name = "full_name")
 	protected String fullName;
 
 	/* Validation */
 	// @NotNull(groups = OnUserCreate.class)
+	@NotNull
 	protected String phone;
 }
