@@ -4,9 +4,16 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -33,6 +40,7 @@ public class TripType implements Serializable {
 	}
 
 	/* Validation */
+	@NotNull
 	/* JPA */
 	@Id
 	/* Lombok */
@@ -48,6 +56,7 @@ public class TripType implements Serializable {
 	@NotNull
 	@NotEmpty
 	/* JPA */
+	@Enumerated(EnumType.STRING)
 	private Category category;
 
 	/* Validation */
@@ -61,7 +70,10 @@ public class TripType implements Serializable {
 	private double price;
 
 	/* JPA */
-
+	@ElementCollection
+	@CollectionTable
+	@Column(name = "departure")
+	@Temporal(TemporalType.TIME)
 	private List<Date> departures;
 
 	/* Validation */

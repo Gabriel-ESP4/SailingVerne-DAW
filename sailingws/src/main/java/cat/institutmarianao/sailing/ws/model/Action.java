@@ -3,6 +3,14 @@ package cat.institutmarianao.sailing.ws.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -10,6 +18,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /* JPA annotations */
+@Entity
+@Table(name = "actions")
 /* Mapping JPA Indexes */
 /* JPA Inheritance strategy is single table */
 /*
@@ -36,26 +46,34 @@ public abstract class Action implements Serializable {
 	}
 
 	/* Validation */
+	@NotNull
 	/* JPA */
+	@Id
 	/* Lombok */
 	@EqualsAndHashCode.Include
 	protected Long id;
 
 	/* Validation */
+	@NotNull
 	/* Lombok */
 	@NonNull
 	/* JPA */
+	@Enumerated(EnumType.STRING)
 	protected Type type;
 
 	/* Validation */
+	@NotNull
 	/* JPA */
+	@ManyToOne(cascade = CascadeType.ALL)
 	protected User performer;
 
 	/* JPA */
 	protected Date date = new Date();
 
 	/* Validation */
+	@NotNull
 	/* JPA */
+	@ManyToOne(cascade = CascadeType.ALL)
 	/* JSON */
 	protected Trip trip;
 

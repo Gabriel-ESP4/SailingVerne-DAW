@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -43,6 +42,7 @@ public abstract class User implements Serializable {
 	public static final int MIN_PASSWORD = 10;
 
 	/* Validation */
+	@NotNull
 	/* JPA */
 	@Id
 	/* Lombok */
@@ -50,15 +50,15 @@ public abstract class User implements Serializable {
 	protected String username;
 
 	/* Validation */
+	@NotNull
 	@Column(nullable = false)
 	/* JPA */
 
 	protected String password;
 
 	/* Validation */
-	@Column(insertable = false, updatable = false)
 	@NotNull
-	@NotEmpty
+	@Column(insertable = false, updatable = false, nullable = false)
 	/* JPA */
 	@Enumerated(EnumType.STRING)
 	protected Role role;
