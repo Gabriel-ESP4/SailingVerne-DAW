@@ -61,7 +61,7 @@ public class TripType implements Serializable {
 	private double price;
 
 	/* JPA */
-	@One
+
 	private List<Date> departures;
 
 	/* Validation */
