@@ -5,14 +5,16 @@ import java.io.Serializable;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /* JPA annotations */
 @Entity
-@DiscriminatorValue(value = "CLIENT")
+/* An employee is identified in the user table with role=EMPLOYEE */
+@DiscriminatorValue(User.CLIENT)
+
 /* Lombok */
 @Data
 @NoArgsConstructor
@@ -26,13 +28,12 @@ public class Client extends User implements Serializable {
 
 	/* Validation */
 	// @NotBlank(groups = OnUserCreate.class)
-	@NotNull
+	@Size(min = MIN_FULL_NAME, max = MAX_FULL_NAME)
 	/* JPA */
 	@Column(name = "full_name")
 	protected String fullName;
 
 	/* Validation */
 	// @NotNull(groups = OnUserCreate.class)
-	@NotNull
 	protected String phone;
 }

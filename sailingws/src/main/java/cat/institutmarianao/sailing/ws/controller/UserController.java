@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +35,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -78,8 +78,8 @@ public class UserController {
 	@ApiResponse(responseCode = "200", content = {
 			@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserDto.class))) }, description = "Users retrieved ok")
 	@GetMapping(value = "/find/all")
-	public @ResponseBody List<UserDto> findAll(@RequestParam(value = "roles", required = false) Role[] roles,
-			@RequestParam(value = "fullName", required = false) String fullName) {
+	@RolesAllowed("ROLE_ADMIN")
+	public @ResponseBody List<UserDto> findAll() {
 
 		List<User> users = userService.findAll();
 
@@ -102,8 +102,8 @@ public class UserController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-		if (!authorities.stream().anyMatch(ga -> ga.getAuthority().equals("ROLE_ADMIN"))) {
-			if (!userDto.getRole().equals(Role.CLIENT)) {
+		if (!authorities.stream().anyMatch(ga -> "ROLE_ADMIN".equals(ga.getAuthority()))) {
+			if (!Role.CLIENT.equals(userDto.getRole())) {
 				throw new Exception("Clients only can create client accounts");
 			}
 		}
@@ -123,7 +123,17 @@ public class UserController {
 	/**/
 	@PutMapping("/update")
 	@Validated(OnUserUpdate.class)
-	public UserDto update(@RequestBody @Valid UserDto userDto) {
+	public UserDto update(@RequestBody @Valid UserDto userDto) throws Exception {
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+		if (!authorities.stream().anyMatch(ga -> "ROLE_CLIENT".equals(ga.getAuthority()))) {
+			if (!authentication.getName().equals(userDto.getUsername())) {
+				throw new Exception("Clients only can update themself");
+			}
+		}
+
 		return conversionService.convert(userService.update(convertAndEncodePassword(userDto)), UserDto.class);
 	}
 
@@ -133,7 +143,18 @@ public class UserController {
 			@Content(mediaType = "application/json") }, description = "User deleted ok")
 	/**/
 	@DeleteMapping("/delete/by/username/{username}")
-	public void deleteByUsername(@PathVariable("username") @NotBlank String username) {
+	public void deleteByUsername(@PathVariable("username") @NotBlank String username) throws Exception {
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+		// TODO FIXME Clientes no eliminan y admin reciben el error
+		if (!authorities.stream().anyMatch(ga -> "ROLE_CLIENT".equals(ga.getAuthority()))) {
+			if (!authentication.getName().equals(username)) {
+				throw new Exception("Clients only can delete themself");
+			}
+		}
+
 		userService.deleteByUsername(username);
 	}
 

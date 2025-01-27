@@ -15,16 +15,18 @@ import cat.institutmarianao.sailing.ws.model.Trip;
 import cat.institutmarianao.sailing.ws.model.TripType;
 import cat.institutmarianao.sailing.ws.model.User;
 import cat.institutmarianao.sailing.ws.model.dto.TripDto;
+import cat.institutmarianao.sailing.ws.service.ActionService;
+import cat.institutmarianao.sailing.ws.service.TripTypeService;
 import cat.institutmarianao.sailing.ws.service.UserService;
 
 @Component
 public class TripDtoToTripConverter implements Converter<TripDto, Trip> {
 
-	// TODO Activate this: @Autowired
-	// TODO Activate this: private ActionService actionService;
+	@Autowired
+	private ActionService actionService;
 
-	// TODO Activate this: @Autowired
-	// TODO Activate this: private TripTypeService tripTypeService;
+	@Autowired
+	private TripTypeService tripTypeService;
 
 	@Autowired
 	private UserService userService;
@@ -40,7 +42,7 @@ public class TripDtoToTripConverter implements Converter<TripDto, Trip> {
 
 		List<Action> tracking = null;
 		if (trip.getId() != null) {
-			tracking = null; // TODO get tracking
+			tracking = actionService.findByTripId(trip.getId());
 		}
 		if (tracking != null) {
 			trip.setTracking(tracking);
@@ -60,7 +62,7 @@ public class TripDtoToTripConverter implements Converter<TripDto, Trip> {
 		if (user instanceof Client client) {
 			trip.setClient(client);
 		}
-		TripType tripType = null; // TODO get trip typre
+		TripType tripType = tripTypeService.getById(tripDto.getTypeId());
 		trip.setType(tripType);
 	}
 }

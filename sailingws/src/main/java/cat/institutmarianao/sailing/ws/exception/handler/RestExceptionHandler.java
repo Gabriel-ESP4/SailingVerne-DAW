@@ -3,6 +3,7 @@ package cat.institutmarianao.sailing.ws.exception.handler;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import cat.institutmarianao.sailing.ws.exception.ForbiddenException;
+import cat.institutmarianao.sailing.ws.exception.NotFoundException;
 import cat.institutmarianao.sailing.ws.exception.model.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 
@@ -46,6 +49,26 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<Object> handleConstraintViolationException(Exception ex) {
 		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getLocalizedMessage());
 		return new ResponseEntity<>(errorResponse.getBody(), HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+
+	/**
+	 * Custom ResourceNotFoundException handler
+	 */
+	@ExceptionHandler
+	public ResponseEntity<ErrorResponse> handleException(NotFoundException e) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, "Not found");
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON)
+				.body(errorResponse);
+	}
+
+	/**
+	 * Custom ForbiddenException handler
+	 */
+	@ExceptionHandler
+	public ResponseEntity<ErrorResponse> handleException(ForbiddenException e) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN, "Forbidden");
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_PROBLEM_JSON)
+				.body(errorResponse);
 	}
 
 	/**

@@ -9,9 +9,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /* JPA annotations */
-/* An employee is identified in the user table with role=EMPLOYEE */
 @Entity
-@DiscriminatorValue(value = "ADMIN")
+/* An employee is identified in the user table with role=EMPLOYEE */
+@DiscriminatorValue(User.ADMIN)
+
 /* Lombok */
 @Data
 @NoArgsConstructor

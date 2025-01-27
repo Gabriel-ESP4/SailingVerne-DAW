@@ -6,21 +6,28 @@ import java.util.List;
 
 import org.hibernate.annotations.Formula;
 
+import cat.institutmarianao.sailing.ws.validation.constraints.Tracking;
+import cat.institutmarianao.sailing.ws.validation.groups.OnTripCreate;
+import cat.institutmarianao.sailing.ws.validation.groups.OnTripUpdate;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,34 +57,42 @@ public class Trip implements Serializable {
 	}
 
 	/* Validation */
-	@NotNull
+	@Null(groups = OnTripCreate.class) // Must be null on inserts
+	@NotNull(groups = OnTripUpdate.class) // Must be not null on updates
 	/* JPA */
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(unique = true, nullable = false)
 	/* Lombok */
 	@EqualsAndHashCode.Include
 	/* JSON */
 	private Long id;
 
 	/* JPA */
-	@OneToOne
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER)
 	private TripType type;
 
 	/* Validation */
-	@NotNull
+	@NotNull(groups = OnTripCreate.class)
+	@Valid
 	/* JPA */
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "client_username", referencedColumnName = "username")
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	private Client client;
 
+	@Positive
 	private int places;
 
 	/* Validation */
-	@NotNull
+	@Tracking
 	/* JPA */
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "trip", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "trip")
+	@Column(nullable = false)
+	@OrderBy("date DESC")
 	private List<@Valid Action> tracking;
-	@Enumerated(EnumType.STRING)
+
+	/* JPA */
+	@Enumerated(EnumType.STRING) // Stored as string
 	/* Hibernate */
 	@Formula("(SELECT CASE a.type WHEN '" + Action.BOOKING + "' THEN '" + Trip.RESERVED + "' WHEN '"
 			+ Action.RESCHEDULING + "' THEN '" + Trip.RESCHEDULED + "' WHEN '" + Action.CANCELLATION + "' THEN '"
@@ -95,7 +110,6 @@ public class Trip implements Serializable {
 	private Date date;
 
 	/* JPA */
-	@Column(name = "departure")
 	@Temporal(TemporalType.TIME)
 	private Date departure;
 }

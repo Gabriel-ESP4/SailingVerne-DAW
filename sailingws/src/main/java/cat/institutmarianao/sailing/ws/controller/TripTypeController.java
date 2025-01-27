@@ -1,7 +1,10 @@
 package cat.institutmarianao.sailing.ws.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cat.institutmarianao.sailing.ws.model.TripType;
 import cat.institutmarianao.sailing.ws.model.TripType.Category;
 import cat.institutmarianao.sailing.ws.model.dto.TripTypeDto;
+import cat.institutmarianao.sailing.ws.service.TripTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +27,11 @@ import jakarta.validation.constraints.NotNull;
 @RestController
 @RequestMapping("/triptypes")
 public class TripTypeController {
+	@Autowired
+	private ConversionService conversionService;
+
+	@Autowired
+	private TripTypeService tripTypeService;
 
 	/* Swagger */
 	@Operation(summary = "Find all trip types")
@@ -32,9 +41,15 @@ public class TripTypeController {
 	@GetMapping("/find/all")
 	public List<TripTypeDto> findAllTripTypes() {
 
-		// TODO find all trip types
+		List<TripType> tripTypes = tripTypeService.findAll();
 
-		return null;
+		List<TripTypeDto> tripTypeDtos = new ArrayList<>(tripTypes.size());
+		for (TripType tripType : tripTypes) {
+			TripTypeDto tripTypeDto = conversionService.convert(tripType, TripTypeDto.class);
+			tripTypeDtos.add(tripTypeDto);
+		}
+
+		return tripTypeDtos;
 	}
 
 	/* Swagger */
@@ -45,9 +60,15 @@ public class TripTypeController {
 	@GetMapping("/find/all/{category}")
 	public List<TripTypeDto> findAllTripTypesByCategory(@PathVariable("category") Category category) {
 
-		// TODO find all trip types by category
+		List<TripType> tripTypes = tripTypeService.findAll(category);
 
-		return null;
+		List<TripTypeDto> tripTypeDtos = new ArrayList<>(tripTypes.size());
+		for (TripType tripType : tripTypes) {
+			TripTypeDto tripTypeDto = conversionService.convert(tripType, TripTypeDto.class);
+			tripTypeDtos.add(tripTypeDto);
+		}
+
+		return tripTypeDtos;
 	}
 
 	/* Swagger */
@@ -57,8 +78,7 @@ public class TripTypeController {
 	/**/
 	@GetMapping("/find/all/group")
 	public List<TripTypeDto> findAllGroupTripTypes() {
-		// TODO find all trip types with category GROUP
-		return null;
+		return findAllTripTypesByCategory(Category.GROUP);
 	}
 
 	/* Swagger */
@@ -68,8 +88,7 @@ public class TripTypeController {
 	/**/
 	@GetMapping("/find/all/private")
 	public List<TripTypeDto> findAllPrivateTripTypes() {
-		// TODO find all trip types with category PRIVATE
-		return null;
+		return findAllTripTypesByCategory(Category.PRIVATE);
 	}
 
 	/* Swagger */
@@ -79,7 +98,6 @@ public class TripTypeController {
 	/**/
 	@GetMapping("/get/by/id/{id}")
 	public TripTypeDto findById(@PathVariable("id") @NotNull Long id) {
-		// TODO find trip type by id
-		return null;
+		return conversionService.convert(tripTypeService.getById(id), TripTypeDto.class);
 	}
 }

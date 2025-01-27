@@ -20,7 +20,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -59,11 +58,13 @@ public class JwtUtils {
 		return Jwts.builder().setClaims(claims).signWith(signature).compact();
 	}
 
-	public String generateRefreshToken(Map<String, Object> claims, String subject) {
+	public String generateRefreshToken(Map<String, Object> claims, String principal) {
 
-		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + refreshExpirationInMs))
-				.signWith(SignatureAlgorithm.HS512, secret).compact();
+		SecretKey signature = Keys.hmacShaKeyFor(secret.getBytes());
+
+		return Jwts.builder().setClaims(claims).setSubject(principal).setIssuedAt(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis() + refreshExpirationInMs)).signWith(signature)
+				.compact();
 	}
 
 	public UsernamePasswordAuthenticationToken getAuthentication(String token) {

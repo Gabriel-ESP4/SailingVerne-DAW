@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cat.institutmarianao.sailing.ws.security.JwtUtils;
 import cat.institutmarianao.sailing.ws.security.model.AuthCredentials;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -58,6 +59,7 @@ public class AuthenticationController {
 		}
 	}
 
+	@Hidden
 	@GetMapping(value = "/refreshtoken")
 	public ResponseEntity<?> refreshtoken(HttpServletRequest request) throws Exception {
 		// From the HttpRequest get the claims

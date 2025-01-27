@@ -6,30 +6,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import cat.institutmarianao.sailing.ws.exception.NotFoundException;
 import cat.institutmarianao.sailing.ws.model.TripType;
-import cat.institutmarianao.sailing.ws.repository.ViewRepository;
+import cat.institutmarianao.sailing.ws.model.TripType.Category;
+import cat.institutmarianao.sailing.ws.repository.TripTypeRepository;
 import cat.institutmarianao.sailing.ws.service.TripTypeService;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
 @Validated
 @Service
 public class TripTypeServiceImpl implements TripTypeService {
-
 	@Autowired
-	private ViewRepository viewRepository;
+	private TripTypeRepository tripTypeRepository;
 
 	@Override
 	public List<TripType> findAll() {
-		return viewRepository.findAll();
+		return tripTypeRepository.findAll();
 	}
 
 	@Override
-	public TripType getAllById(@NotBlank Long id) {
-		return viewRepository.findAllById(id);
+	public List<TripType> findAll(Category category) {
+		return tripTypeRepository.findAllByCategory(category);
 	}
 
 	@Override
-	public TripType getById(@NotBlank Long id) {
-		return viewRepository.findById(id);
+	public TripType getById(@Positive Long id) {
+		return tripTypeRepository.findById(id).orElseThrow(NotFoundException::new);
 	}
+
 }
