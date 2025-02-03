@@ -9,6 +9,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +21,6 @@ import cat.institutmarianao.sailing.model.Action;
 import cat.institutmarianao.sailing.model.BookedPlace;
 import cat.institutmarianao.sailing.model.Trip;
 import cat.institutmarianao.sailing.model.TripType;
-import cat.institutmarianao.sailing.model.User;
 import cat.institutmarianao.sailing.services.TripService;
 import jakarta.validation.constraints.NotNull;
 
@@ -35,6 +37,7 @@ public class TripServiceImpl implements TripService {
 	private static final String TRIP_FIND_ALL_BY_USERNAME = TRIP_SERVICE + "/find/all/by/client/username/{" + USERNAME
 			+ "}";
 	private static final String TRIP_SAVE = TRIP_SERVICE + "/save";
+	private static final String TRIPTYPE_BOOKED_FIND_ALL_BY_ID = TRIP_SERVICE + "/bookedPlaces/{trip_type_id}/{date}";
 
 	private static final String TRIPTYPE_SERVICE = "/triptypes";
 	private static final String TRIPTYPE_FIND_ALL = TRIPTYPE_SERVICE + "/find/all";
@@ -61,31 +64,35 @@ public class TripServiceImpl implements TripService {
 
 	@Override
 	public List<Trip> findAllByClientUsername(String username) {
-		final String uri = webServiceHost + ":" + webServicePort + TRIP_FIND_ALL_BY_USERNAME;
+		final String baseUri = webServiceHost + ":" + webServicePort + TRIP_FIND_ALL_BY_USERNAME;
+		UriComponentsBuilder uriTemplate = UriComponentsBuilder.fromHttpUrl(baseUri);
 
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put(USERNAME, username);
-
-		Trip response = restTemplate.getForObject(uriTemplate.buildAndExpand(uriVariables).toUriString(), Trip.class);
-		return response;
+		ResponseEntity<Trip> response = restTemplate
+				.getForEntity(uriTemplate.buildAndExpand(uriVariables).toUriString(), Trip.class);
+		return Arrays.asList(response.getBody());
 	}
 
 	@Override
 	public Trip save(Trip trip) {
 		final String uri = webServiceHost + ":" + webServicePort + TRIP_SAVE;
-		UriComponentsBuilder uriTemplate = UriComponentsBuilder.fromHttpUrl(baseUri);
 
-		Map<String, String> uriVariables = new HashMap<>();
-		uriVariables.put(TRIP, trip);
-		// TODO hay que rehacerlo porque esta mal
-		User response = restTemplate.getForObject(uriTemplate.buildAndExpand(uriVariables).toUriString(), User.class);
-		return response;
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		HttpEntity<Trip> request = new HttpEntity<>(trip, headers);
+
+		return restTemplate.postForObject(uri, request, Trip.class);
 	}
 
 	@Override
 	public List<BookedPlace> findBookedPlacesByTripIdAndDate(@NotNull Long id, @NotNull Date date) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO ESTABAMOS HACIENDO ESTO, BOOKEDPLACE ES TRIPTYPEDEPARTUES EN LA BBDD
+		final String uri = webServiceHost + ":" + webServicePort + TRIPTYPE_FIND_ALL;
+
+		ResponseEntity<TripType[]> response = restTemplate.getForEntity(uri, TripType[].class);
+		return Arrays.asList(response.getBody());
 	}
 
 	@Override
@@ -114,7 +121,7 @@ public class TripServiceImpl implements TripService {
 
 	@Override
 	public TripType getTripTypeById(Long id) {
-		final String uri = webServiceHost + ":" + webServicePort + TRIPTYPE_FIND_BY_ID;
+		final String baseUri = webServiceHost + ":" + webServicePort + TRIPTYPE_FIND_BY_ID;
 
 		UriComponentsBuilder uriTemplate = UriComponentsBuilder.fromHttpUrl(baseUri);
 
@@ -129,8 +136,7 @@ public class TripServiceImpl implements TripService {
 
 	@Override
 	public List<Action> findTrackingById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+
 	}
 
 	@Override
