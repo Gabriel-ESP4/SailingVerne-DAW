@@ -1,0 +1,9 @@
+.groupsSection {
+	display:flex;
+	flex-direction: column;
+}
+
+.trips {
+	display: grid;
+	grid-template-columns: auto auto auto;
+}

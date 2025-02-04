@@ -1,5 +1,6 @@
 package cat.institutmarianao.sailing.services.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,16 +29,19 @@ import jakarta.validation.constraints.NotNull;
 @PropertySource("classpath:application.properties")
 public class TripServiceImpl implements TripService {
 
-	private static final String TRIP = "trip";
 	private static final String USERNAME = "username";
 	private static final String ID = "id";
+	private static final String DATE = "date";
 
 	private static final String TRIP_SERVICE = "/trips";
 	private static final String TRIP_FIND_ALL = TRIP_SERVICE + "/booked";
 	private static final String TRIP_FIND_ALL_BY_USERNAME = TRIP_SERVICE + "/find/all/by/client/username/{" + USERNAME
 			+ "}";
 	private static final String TRIP_SAVE = TRIP_SERVICE + "/save";
-	private static final String TRIPTYPE_BOOKED_FIND_ALL_BY_ID = TRIP_SERVICE + "/bookedPlaces/{trip_type_id}/{date}";
+	private static final String TRIP_SAVE_ACTION = TRIP_SAVE + "/action";
+	private static final String TRIP_FIND_ALL_BY_TRIPTYPE_ID = TRIP_SERVICE + "/bookedPlaces/{" + ID + "}/{" + DATE
+			+ "}";
+	private static final String TRIP_ACTIONS_FIND_ALL_BY_ID = TRIP_SERVICE + "/find/tracking/by/id/{" + ID + "}";
 
 	private static final String TRIPTYPE_SERVICE = "/triptypes";
 	private static final String TRIPTYPE_FIND_ALL = TRIPTYPE_SERVICE + "/find/all";
@@ -69,8 +73,8 @@ public class TripServiceImpl implements TripService {
 
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put(USERNAME, username);
-		ResponseEntity<Trip> response = restTemplate
-				.getForEntity(uriTemplate.buildAndExpand(uriVariables).toUriString(), Trip.class);
+		ResponseEntity<Trip[]> response = restTemplate
+				.getForEntity(uriTemplate.buildAndExpand(uriVariables).toUriString(), Trip[].class);
 		return Arrays.asList(response.getBody());
 	}
 
@@ -88,10 +92,16 @@ public class TripServiceImpl implements TripService {
 
 	@Override
 	public List<BookedPlace> findBookedPlacesByTripIdAndDate(@NotNull Long id, @NotNull Date date) {
-		// TODO ESTABAMOS HACIENDO ESTO, BOOKEDPLACE ES TRIPTYPEDEPARTUES EN LA BBDD
-		final String uri = webServiceHost + ":" + webServicePort + TRIPTYPE_FIND_ALL;
 
-		ResponseEntity<TripType[]> response = restTemplate.getForEntity(uri, TripType[].class);
+		final String baseUri = webServiceHost + ":" + webServicePort + TRIP_FIND_ALL_BY_TRIPTYPE_ID;
+		UriComponentsBuilder uriTemplate = UriComponentsBuilder.fromHttpUrl(baseUri);
+
+		Map<String, String> uriVariables = new HashMap<>();
+		uriVariables.put(ID, Long.toString(id));
+		uriVariables.put(DATE, new SimpleDateFormat("yyyy-MM-dd").format(date));
+
+		ResponseEntity<BookedPlace[]> response = restTemplate
+				.getForEntity(uriTemplate.buildAndExpand(uriVariables).toUriString(), BookedPlace[].class);
 		return Arrays.asList(response.getBody());
 	}
 
@@ -136,13 +146,28 @@ public class TripServiceImpl implements TripService {
 
 	@Override
 	public List<Action> findTrackingById(Long id) {
+		final String baseUri = webServiceHost + ":" + webServicePort + TRIP_ACTIONS_FIND_ALL_BY_ID;
+		UriComponentsBuilder uriTemplate = UriComponentsBuilder.fromHttpUrl(baseUri);
+
+		Map<String, String> uriVariables = new HashMap<>();
+		uriVariables.put(ID, Long.toString(id));
+
+		ResponseEntity<Action[]> response = restTemplate
+				.getForEntity(uriTemplate.buildAndExpand(uriVariables).toUriString(), Action[].class);
+		return Arrays.asList(response.getBody());
 
 	}
 
 	@Override
 	public Action track(Action action) {
-		// TODO Auto-generated method stub
-		return null;
+		final String uri = webServiceHost + ":" + webServicePort + TRIP_SAVE_ACTION;
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		HttpEntity<Action> request = new HttpEntity<>(action, headers);
+
+		return restTemplate.postForObject(uri, request, Action.class);
 	}
 
 }

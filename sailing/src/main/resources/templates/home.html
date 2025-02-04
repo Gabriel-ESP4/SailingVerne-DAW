@@ -28,15 +28,46 @@
 
 	</section>
 
-	<section class="container">
-		<!-- /* TODO - Include heading for 'Group Trips' */ -->
-		<!-- /* TODO - Include tripTypes for ${groupTrips}*/ -->
-		<p th:text="${groupTrips}"></p>
-	</section>
-	<section class="container">
-		<!-- /* TODO - Include heading for 'Private Trips' */ -->
-		<!-- /* TODO - Include tripTypes for ${privateTrips}*/ -->
-		<p th:text="${privateTrips}"></p>
-	</section>
+	<div class="groupsSection">
+
+		<section th:text="#{dialogs.home.trip.group}" class="card my-1"></section>
+
+		<div  class="trips">
+			<table
+				class="table table-striped table-bordered table-condensed table-responsive" th:each="trip, iStat  : ${groupTrips}">
+
+				<tbody>
+					<tr>
+						<td th:text="${trip.title}" class="card my-1"></td>
+					</tr>
+					<tr>
+						<td class="card my-1">info extra + boton</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
+	<div class="groupsSection">
+		<section th:text="#{dialogs.home.trip.private}" class="card my-1"></section>
+
+		<div  class="trips">
+			<table
+				class="table table-striped table-bordered table-condensed table-responsive" th:each="trip, iStat  : ${privateTrips}">
+
+				<tbody>
+					<tr>
+						<td th:text="${trip.title}" class="card my-1"></td>
+					</tr>
+					<tr>
+						<td class="card my-1">info extra + boton</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
 </body>
 </html>
