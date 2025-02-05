@@ -7,6 +7,8 @@ import java.util.Optional;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
+import cat.institutmarianao.sailing.ws.model.TripType;
+
 /*
  * Avoid to expose save and delete methods
  */
@@ -16,7 +18,7 @@ public interface ViewRepository<T, K> extends Repository<T, K> {
 
 	boolean existsById(K id);
 
-	List<T> findAll();
+	List<TripType> findAll();
 
 	List<T> findAllById(Iterable<K> ids);
 
