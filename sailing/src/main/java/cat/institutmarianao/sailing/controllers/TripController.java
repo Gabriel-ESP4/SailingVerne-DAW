@@ -2,6 +2,7 @@ package cat.institutmarianao.sailing.controllers;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
@@ -61,7 +62,10 @@ public class TripController {
 	public ModelAndView bookSelectDate(@PathVariable(name = "trip_type_id", required = true) Long tripTypeId) {
 		// TODO - Prepare a dialog to select a departure date for the booked trip with
 		// id tripTypeId
-		return null;
+		ModelAndView bookDate = new ModelAndView("book_date");
+		TripType tripType = tripService.getTripTypeById(tripTypeId);
+		bookDate.getModelMap().addAttribute("tripType", tripType);
+		return bookDate;
 	}
 
 	@PostMapping("/book/book_departure")
@@ -96,8 +100,11 @@ public class TripController {
 
 	@GetMapping("/booked")
 	public ModelAndView booked() {
-		// TODO - Retrieve all booked trips
-		return null;
+		ModelAndView trips = new ModelAndView("trips");
+		List<Trip> allTrips = tripService.findAll();
+		trips.getModelMap().addAttribute("trips", allTrips);
+
+		return trips;
 	}
 
 	@PostMapping("/cancel")

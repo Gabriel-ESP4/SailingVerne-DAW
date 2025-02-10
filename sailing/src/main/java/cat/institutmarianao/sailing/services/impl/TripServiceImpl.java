@@ -34,7 +34,7 @@ public class TripServiceImpl implements TripService {
 	private static final String DATE = "date";
 
 	private static final String TRIP_SERVICE = "/trips";
-	private static final String TRIP_FIND_ALL = TRIP_SERVICE + "/booked";
+	private static final String TRIP_FIND_ALL = TRIP_SERVICE + "/find/all";
 	private static final String TRIP_FIND_ALL_BY_USERNAME = TRIP_SERVICE + "/find/all/by/client/username/{" + USERNAME
 			+ "}";
 	private static final String TRIP_SAVE = TRIP_SERVICE + "/save";
