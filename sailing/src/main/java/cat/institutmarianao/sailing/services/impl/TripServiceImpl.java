@@ -135,8 +135,8 @@ public class TripServiceImpl implements TripService {
 
 		UriComponentsBuilder uriTemplate = UriComponentsBuilder.fromHttpUrl(baseUri);
 
-		Map<String, String> uriVariables = new HashMap<>();
-		uriVariables.put(ID, Long.toString(id));
+		Map<String, Long> uriVariables = new HashMap<>();
+		uriVariables.put(ID, id);
 
 		TripType response = restTemplate.getForObject(uriTemplate.buildAndExpand(uriVariables).toUriString(),
 				TripType.class);

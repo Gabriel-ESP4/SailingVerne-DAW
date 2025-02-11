@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -36,6 +37,7 @@ import jakarta.validation.constraints.Positive;
 @RequestMapping(value = "/trips")
 public class TripController {
 
+	@Autowired
 	private TripService tripService;
 
 	@ModelAttribute("trip")
@@ -62,6 +64,9 @@ public class TripController {
 	public ModelAndView bookSelectDate(@PathVariable(name = "trip_type_id", required = true) Long tripTypeId) {
 		// TODO - Prepare a dialog to select a departure date for the booked trip with
 		// id tripTypeId
+
+		// TODO - falta hacer llo que dice el todo de arriba y tienes que hacer que
+		// book_date le pase bien al fragment de forms el trip_type.id
 		ModelAndView bookDate = new ModelAndView("book_date");
 		TripType tripType = tripService.getTripTypeById(tripTypeId);
 		bookDate.getModelMap().addAttribute("tripType", tripType);
