@@ -62,14 +62,11 @@ public class TripController {
 
 	@GetMapping("/book/{trip_type_id}")
 	public ModelAndView bookSelectDate(@PathVariable(name = "trip_type_id", required = true) Long tripTypeId) {
-		// TODO - Prepare a dialog to select a departure date for the booked trip with
-		// id tripTypeId
 
-		// TODO - falta hacer llo que dice el todo de arriba y tienes que hacer que
-		// book_date le pase bien al fragment de forms el trip_type.id
 		ModelAndView bookDate = new ModelAndView("book_date");
 		TripType tripType = tripService.getTripTypeById(tripTypeId);
 		bookDate.getModelMap().addAttribute("tripType", tripType);
+
 		return bookDate;
 	}
 
@@ -81,6 +78,7 @@ public class TripController {
 		// TODO - Prepare a dialog to select a departure time for the booked trip
 		// TODO - Leave all free places for the selected trip in the selected departure
 		// date in session (freePlaces attribute)
+		System.out.print("hola");
 		return null;
 	}
 

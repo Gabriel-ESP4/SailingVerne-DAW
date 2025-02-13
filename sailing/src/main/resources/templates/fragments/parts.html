@@ -41,7 +41,7 @@
 				</ul>
 				<p class="card-text"></p>
 				<a sec:authorize="!hasRole('ADMIN')" th:href="@{/trips/book/{trypTypeId}(trypTypeId=${tripType.id})}"
-				class="btn btn-secondary">Book</a>
+				class="btn btn-secondary" th:text="#{book.book}">Book</a>
 			</div>
 		</div>
 	</div>

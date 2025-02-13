@@ -21,7 +21,20 @@
 </head>
 
 <body>
-	<form th:fragment="registerTrip(tripTypeID)">
-		<p th:text="${tripTypeID}">ID</p>
+	<form th:fragment="registerTrip(tripTypeID)" method="POST" th:action="@{/trips/book/book_departure}">
+		<h4 th:text="${tripType.title}">2 hours trip</h4>
+		<div class="card-body">
+			<p th:text="${#numbers.formatDecimal(tripType.price, 1, 'COMMA', 0, 'POINT')+ '€'} + ' - ' + ${tripType.duration} + ' ' + (${tripType.duration==1} ? #{parts.trip.hour} : #{parts.trip.hours})"
+				class="card-text h5">0.00€ 1 hour</p>
+			<p th:text="${tripType.description}" class="text-secondary">desc</p>
+			<p th:text="${tripType.maxPlaces} + ' ' + #{parts.trip.places} "
+				class="card-text">places</p>
+			<p th:text="#{book.date}" class="card-text">Trip Date</p>
+			<div class="inline">
+				<p th:text="#{book.select.date}" class="text-secondary">Select trip Date</p>
+				<input class="text-secondary" type="date" name="" id=""></input>
+			</div>
+			<input class="btn btn-success" th:text="#{book.next}" type="submit">Next</input>
+		</div>
 	</form>
 </body>

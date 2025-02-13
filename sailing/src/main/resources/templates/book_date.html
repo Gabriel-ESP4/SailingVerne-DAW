@@ -36,8 +36,7 @@
 			<!-- TODO - HACER EL FORM DE LA PAGINA 10 DEL PDF, Y LOS DATOS DEL TRIPTYPE ESTAN EN LA VARIABLE tripType, QUE SE LO ESTAMOS PASANDO A ESTA VISTA DESDE TRIPCONTROLLER.JAVA -->
 			
 		<form
-			th:replace="~{fragments/forms :: registerTrip(#{tripType.id})}"
-			class="card my-1">Formulario</form>
+			th:replace="~{fragments/forms :: registerTrip(${tripType.id})}">Formulario</form>
 
 	</section>
 
