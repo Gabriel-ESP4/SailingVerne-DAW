@@ -29,12 +29,12 @@
 			<p th:text="${tripType.description}" class="text-secondary">desc</p>
 			<p th:text="${tripType.maxPlaces} + ' ' + #{parts.trip.places} "
 				class="card-text">places</p>
-			<p th:text="#{book.date}" class="card-text">Trip Date</p>
-			<div class="inline">
+			<span th:text="#{book.date}" class="card-text">Trip Date</span><span th:if="${newTripDate != null}" th:text="${newTripDate}" class="text-secondary">trip date</span>
+			<div class="inline" th:switch="${user.role}">
 				<p th:text="#{book.select.date}" class="text-secondary">Select trip Date</p>
-				<input class="text-secondary" type="date" name="" id=""></input>
+				<input th:if="${newTripDate == null}" class="text-secondary" type="date" name="newTripDate"/>
 			</div>
-			<input class="btn btn-success" th:text="#{book.next}" type="submit">Next</input>
+			<input class="btn btn-success" th:value="#{book.next}" type="submit"/>
 		</div>
 	</form>
 </body>

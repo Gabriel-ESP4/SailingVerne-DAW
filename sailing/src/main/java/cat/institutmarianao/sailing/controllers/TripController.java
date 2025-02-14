@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -66,6 +68,14 @@ public class TripController {
 		ModelAndView bookDate = new ModelAndView("book_date");
 		TripType tripType = tripService.getTripTypeById(tripTypeId);
 		bookDate.getModelMap().addAttribute("tripType", tripType);
+		Trip newTrip = new Trip();
+
+		newTrip.setTypeId(tripTypeId);
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		newTrip.setClientUsername(authentication.getName());
+
+		bookDate.getModelMap().addAttribute("trip", newTrip);
 
 		return bookDate;
 	}
@@ -78,8 +88,9 @@ public class TripController {
 		// TODO - Prepare a dialog to select a departure time for the booked trip
 		// TODO - Leave all free places for the selected trip in the selected departure
 		// date in session (freePlaces attribute)
-		System.out.print("hola");
-		return null;
+		modelMap.addAttribute("freePlaces", tripType.getDepartures());
+		modelMap.addAttribute("newTripDate", trip.getDate());
+		return "book_departure";
 	}
 
 	@PostMapping("/book/book_places")
