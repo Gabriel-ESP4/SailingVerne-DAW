@@ -1,5 +1,7 @@
 package cat.institutmarianao.sailing.controllers;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -88,8 +90,13 @@ public class TripController {
 		// TODO - Prepare a dialog to select a departure time for the booked trip
 		// TODO - Leave all free places for the selected trip in the selected departure
 		// date in session (freePlaces attribute)
+
+		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+		String newTripDate = df.format(trip.getDate());
+
+		modelMap.addAttribute("trip", trip);
+		modelMap.addAttribute("newTripDate", newTripDate);
 		modelMap.addAttribute("freePlaces", tripType.getDepartures());
-		modelMap.addAttribute("newTripDate", trip.getDate());
 		return "book_departure";
 	}
 
