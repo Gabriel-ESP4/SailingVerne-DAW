@@ -1,7 +1,5 @@
 package cat.institutmarianao.sailing.controllers;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +22,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
+import cat.institutmarianao.sailing.model.BookedPlace;
 import cat.institutmarianao.sailing.model.Cancellation;
 import cat.institutmarianao.sailing.model.Done;
 import cat.institutmarianao.sailing.model.Rescheduling;
@@ -91,12 +90,14 @@ public class TripController {
 		// TODO - Leave all free places for the selected trip in the selected departure
 		// date in session (freePlaces attribute)
 
-		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-		String newTripDate = df.format(trip.getDate());
+		List<BookedPlace> departures = tripService.findBookedPlacesByTripIdAndDate(tripType.getId(), trip.getDate());
 
-		modelMap.addAttribute("trip", trip);
-		modelMap.addAttribute("newTripDate", newTripDate);
-		modelMap.addAttribute("freePlaces", tripType.getDepartures());
+		for (BookedPlace bookedPlace : departures) {
+			freePlaces.put(bookedPlace.getDate(), bookedPlace.getBookedPlaces());
+		}
+
+		modelMap.addAttribute("newTripDate", trip.getDate());
+
 		return "book_departure";
 	}
 

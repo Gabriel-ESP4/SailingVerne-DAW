@@ -31,8 +31,15 @@
 				class="card-text">places</p>
 			<span th:text="#{book.date}" class="card-text">Trip Date</span>&emsp;&emsp;<span th:if="${newTripDate != null}" th:text="${newTripDate}" class="text-secondary">trip date</span>
 			<div class="inline" th:switch="${user.role}">
-				<p th:text="#{book.select.date}" class="text-secondary">Select trip Date</p>
+				<p th:if="${newTripDate == null}" th:text="#{book.select.date}" class="text-secondary">Select trip Date</p>
+				<span th:if="${newTripDate != null}" th:text="#{book.departure}" class="card-text">Departure</span>
 				<input th:if="${newTripDate == null}" class="text-secondary" type="date" name="newTripDate" th:field="*{date}" />
+				<div th:if="${newTripDate != null}" th:each="hour,places : ${freePlaces}">
+					<p>HOLA</p>
+					<input type="radio" id="html" name="fav_language" value="HTML">
+  					<label for="html" th:text="${hour}">HTML</label><br>
+					<span class="text-secondary" th:text="#{book.free.places(${places})}"></span>
+				</div>
 			</div>
 			<input class="btn btn-success" th:value="#{book.next}" type="submit"/>
 		</div>
