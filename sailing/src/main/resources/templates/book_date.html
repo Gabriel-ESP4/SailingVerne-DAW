@@ -18,7 +18,8 @@
 	href="../static/css/main.css" />
 <title>New user</title>
 </head>
-<body  >
+<body>
+
 	<script th:src="@{/js/user.js}" src="../static/js/user.js"></script>
 
 	<section class="container">
@@ -35,7 +36,7 @@
 			<!-- /* TODO - Build a form to get the departure date of the trip (DON'T FORGET TO INCLUDE CSRF FIELD!! */ -->
 			<!-- TODO - HACER EL FORM DE LA PAGINA 10 DEL PDF, Y LOS DATOS DEL TRIPTYPE ESTAN EN LA VARIABLE tripType, QUE SE LO ESTAMOS PASANDO A ESTA VISTA DESDE TRIPCONTROLLER.JAVA -->
 			
-		<form th:replace="~{fragments/forms :: registerTrip(${tripType.id})}">Formulario</form>
+		<form th:replace="~{fragments/forms :: registerTrip(${tripType.id},'/trips/book/book_departure')}">Formulario</form>
 
 	</section>
 

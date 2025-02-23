@@ -1,7 +1,11 @@
 package cat.institutmarianao.sailing.controllers;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +38,10 @@ import cat.institutmarianao.sailing.validation.groups.OnTripCreate;
 import cat.institutmarianao.sailing.validation.groups.OnTripCreateDate;
 import cat.institutmarianao.sailing.validation.groups.OnTripCreateDeparture;
 import jakarta.validation.constraints.Positive;
+import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 
 @Controller
 @SessionAttributes({ "trip", "tripType", "freePlaces", "tripFreePlaces" })
@@ -69,14 +77,14 @@ public class TripController {
 		ModelAndView bookDate = new ModelAndView("book_date");
 		TripType tripType = tripService.getTripTypeById(tripTypeId);
 		bookDate.getModelMap().addAttribute("tripType", tripType);
-		Trip newTrip = new Trip();
+		Trip trip = new Trip();
 
-		newTrip.setTypeId(tripTypeId);
+		trip.setTypeId(tripTypeId);
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		newTrip.setClientUsername(authentication.getName());
+		trip.setClientUsername(authentication.getName());
 
-		bookDate.getModelMap().addAttribute("trip", newTrip);
+		bookDate.getModelMap().addAttribute("trip", trip);
 
 		return bookDate;
 	}
@@ -85,18 +93,25 @@ public class TripController {
 	public String bookSelectDeparture(@Validated(OnTripCreateDate.class) @ModelAttribute("trip") Trip trip,
 			BindingResult result, @SessionAttribute("tripType") TripType tripType,
 			@SessionAttribute("freePlaces") Map<Date, Long> freePlaces, ModelMap modelMap) {
-
-		// TODO - Prepare a dialog to select a departure time for the booked trip
-		// TODO - Leave all free places for the selected trip in the selected departure
-		// date in session (freePlaces attribute)
-
-		List<BookedPlace> departures = tripService.findBookedPlacesByTripIdAndDate(tripType.getId(), trip.getDate());
-
-		for (BookedPlace bookedPlace : departures) {
-			freePlaces.put(bookedPlace.getDate(), bookedPlace.getBookedPlaces());
+		
+		List<BookedPlace> departures;
+		
+		try {
+			departures = tripService.findBookedPlacesByTripIdAndDate(tripType.getId(), trip.getDate());
+		} catch (java.lang.NullPointerException e) {
+			modelMap.addAttribute("dateNull", true);
+			return "book_date";
 		}
 
-		modelMap.addAttribute("newTripDate", trip.getDate());
+		for (Date departureHours : tripType.getDepartures()) {
+			freePlaces.put(departureHours, tripType.getMaxPlaces());
+		}
+
+		for (BookedPlace bookedPlace : departures) {
+			Date departure = bookedPlace.getDeparture();
+			Long places = bookedPlace.getBookedPlaces();
+			freePlaces.replace(departure, (freePlaces.get(departure) - places));
+		}
 
 		return "book_departure";
 	}
@@ -106,9 +121,25 @@ public class TripController {
 			BindingResult result, @SessionAttribute("tripType") TripType tripType,
 			@SessionAttribute("freePlaces") Map<Date, Long> freePlaces,
 			@SessionAttribute("tripFreePlaces") Long tripFreePlaces, ModelMap modelMap) {
-
-		// TODO - Prepare a dialog to select places for the booked trip
-		return null;
+		
+		Date tripDeparture = trip.getDeparture();
+		
+		// Si modificando el HTML ha conseguido poner una hora con 0 places, le retornamos la página para hackers
+		for (Map.Entry<Date, Long> entry : freePlaces.entrySet()) {
+			Date freePlaceDate = entry.getKey();
+            Long freePlacePlaces = entry.getValue();
+			
+			if (freePlaceDate == tripDeparture) {
+				if (freePlacePlaces == 0) {
+					return "hackers";
+				}
+				break;
+			}
+		}
+		
+		modelMap.addAttribute("tripFreePlaces", Long.valueOf(trip.getPlaces()));
+		return "book_places";
+		
 	}
 
 	@PostMapping("/book/book_save")

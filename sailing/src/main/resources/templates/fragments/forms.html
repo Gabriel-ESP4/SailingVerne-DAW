@@ -21,27 +21,106 @@
 </head>
 
 <body>
-	<form th:fragment="registerTrip(tripTypeID)" th:object="${trip}" method="POST" th:action="@{/trips/book/book_departure}">
+
+	<form th:fragment="registerTrip(tripTypeID,formAction)" th:object="${trip}" method="POST" th:action="@{${formAction}}"
+			th:with="newTripDate=${trip.date}, newTripDeparture=${trip.departure}, thisPageIsDate=${newTripDate == null and newTripDeparture == null},
+			thisPageIsDeparture=${newTripDate != null and newTripDeparture == null}, thisPageIsPlaces=${newTripDate != null and newTripDeparture != null}">
+		<script th:src="@{../../js/book.js}" type="text/javascript"></script>
 		<h4 th:text="${tripType.title}">2 hours trip</h4>
 		<div class="card-body">
+		
 			<p th:text="${#numbers.formatDecimal(tripType.price, 1, 'COMMA', 0, 'POINT')+ '€'} + ' - ' + ${tripType.duration} + ' ' + (${tripType.duration==1} ? #{parts.trip.hour} : #{parts.trip.hours})"
 				class="card-text h5">0.00€ 1 hour</p>
+				
 			<p th:text="${tripType.description}" class="text-secondary">desc</p>
-			<p th:text="${tripType.maxPlaces} + ' ' + #{parts.trip.places} "
-				class="card-text">places</p>
-			<span th:text="#{book.date}" class="card-text">Trip Date</span>&emsp;&emsp;<span th:if="${newTripDate != null}" th:text="${newTripDate}" class="text-secondary">trip date</span>
-			<div class="inline" th:switch="${user.role}">
-				<p th:if="${newTripDate == null}" th:text="#{book.select.date}" class="text-secondary">Select trip Date</p>
-				<span th:if="${newTripDate != null}" th:text="#{book.departure}" class="card-text">Departure</span>
-				<input th:if="${newTripDate == null}" class="text-secondary" type="date" name="newTripDate" th:field="*{date}" />
-				<div th:if="${newTripDate != null}" th:each="hour,places : ${freePlaces}">
-					<p>HOLA</p>
-					<input type="radio" id="html" name="fav_language" value="HTML">
-  					<label for="html" th:text="${hour}">HTML</label><br>
-					<span class="text-secondary" th:text="#{book.free.places(${places})}"></span>
+			
+			<span th:if="${thisPageIsDate or thisPageIsDeparture or thisPageIsPlaces}">
+				<span th:text="#{book.date}" class="card-text">Trip Date</span>
+				&emsp;
+				&emsp;<span th:text="${#dates.format(newTripDate,'dd-MM-yyyy')}" class="text-secondary">selected Trip Date</span>
+			</span>
+			
+			<br th:if="${thisPageIsDeparture or thisPageIsPlaces}">
+			
+			<span th:if="${thisPageIsDeparture or thisPageIsPlaces}">
+				<span th:text="#{book.departure}" class="card-text">Departure</span>&emsp;&emsp;<span th:text="${#dates.format(newTripDeparture,'HH:mm')}" class="text-secondary">selected Trip Departure</span>
+			</span>
+			
+
+			<div th:class="${thisPageIsDeparture} ? 'blocked' : 'inlined' ">
+			
+				<br th:if="${thisPageIsPlaces}">
+
+				
+				<span th:if="${thisPageIsDate}" class="inlined">
+					<span th:text="#{book.select.date}" class="text-secondary inlined">title Select Trip Date</span>
+					&emsp;&emsp;<input th:class="'tripDateSelector border '+(${dateNull} ? 'border-danger text-danger' : 'border-secondary text-secondary')" type="date" name="newTripDate" th:field="*{date}"/>
+				</span>
+				
+				<div th:if="${thisPageIsDeparture}" th:each="place : ${freePlaces}"
+			     th:with="departureTime=${place.key}, departurePlaces=${place.value}, ftdDepartureTime=${#dates.format(departureTime, 'HH:mm')}, minPlacesForBook=1">
+					<div th:data-message="|#{book.alert.no.places.free} ${ftdDepartureTime}|">
+						<input th:field="*{departure}" th:value="${#dates.format(departureTime, 'HH:mm')}" 
+						th:class="${departurePlaces < minPlacesForBook} ? 'hidden' : ''" type="radio" th:id="${ftdDepartureTime}" th:name="radioButtons">
+	  					<label th:for="${ftdDepartureTime}" th:onclick="${departurePlaces < minPlacesForBook} ? 'showAlert(this.parentNode.getAttribute(\'data-message\'))' : ''">
+							<span th:text="${ftdDepartureTime}"  th:class="${departurePlaces < minPlacesForBook} ? 'text-secondary' : ''"></span>
+							&emsp;&emsp;<span class="text-secondary" th:text="#{book.free.places(${departurePlaces})}"></span>
+						</label>
+						<input th:id="places" th:name="places" th:value="${departurePlaces}" th:type="hidden"></input>
+					</div>
 				</div>
+				
+				<span th:if="${thisPageIsPlaces}">
+					<span th:text="#{book.places}" class="card-text">Places</span>
+					&emsp;&emsp;
+					&emsp;
+					<input type="number" class="inputNumber classAsIDinputPlacesNumber" min="1" th:max="${tripFreePlaces}"
+						th:id="places" th:name="places" th:value="${departurePlaces}">
+					
+					<input th:id="places" th:name="places" value="" th:type="hidden" class="classAsIDinputPlacesHidden"></input>
+					<script>
+						var inputNumber = document.getElementsByClassName("classAsIDinputPlacesNumber")[0].value;
+						document.getElementsByClassName("classAsIDinputPlacesHidden")[0].value = inputNumber;
+					</script>
+					&emsp;
+					<span class="text-secondary" th:text="#{book.free.places(${tripFreePlaces})}"></span>
+				</span>
+				
+
 			</div>
+			<br>
 			<input class="btn btn-success" th:value="#{book.next}" type="submit"/>
 		</div>
+		
 	</form>
 </body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -8,10 +8,22 @@
 	grid-template-columns: auto auto auto;
 }
 
-.inline {
-	width: 30%;
+.inlined {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	align-items: center;
+	justify-content: flex-start;
+	align-items: start;
+}
+
+.blocked {
+	display: flex;
+	flex-direction: column;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+.inputNumber {
+	width: 50px;
 }

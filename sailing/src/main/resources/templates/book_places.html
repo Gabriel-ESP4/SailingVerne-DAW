@@ -31,6 +31,7 @@
 			class="card my-1">Booking</section>
 
 			<!-- /* TODO - Build a form to get the booked places of the trip (DON'T FORGET TO INCLUDE CSRF FIELD!! */ -->
+			<form th:replace="~{fragments/forms :: registerTrip(${tripType.id}, '/trips/book/book_save')}">Formulario</form>
 
 	</section>
 
