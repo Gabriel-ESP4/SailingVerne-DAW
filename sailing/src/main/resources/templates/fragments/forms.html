@@ -74,14 +74,9 @@
 					<span th:text="#{book.places}" class="card-text">Places</span>
 					&emsp;&emsp;
 					&emsp;
-					<input type="number" class="inputNumber classAsIDinputPlacesNumber" min="1" th:max="${tripFreePlaces}"
-						th:id="places" th:name="places" th:value="${departurePlaces}">
-					
-					<input th:id="places" th:name="places" value="" th:type="hidden" class="classAsIDinputPlacesHidden"></input>
-					<script>
-						var inputNumber = document.getElementsByClassName("classAsIDinputPlacesNumber")[0].value;
-						document.getElementsByClassName("classAsIDinputPlacesHidden")[0].value = inputNumber;
-					</script>
+					<input type="number" class="inputNumber" min="1" th:max="${tripFreePlaces}"
+						th:id="places" th:name="places">
+
 					&emsp;
 					<span class="text-secondary" th:text="#{book.free.places(${tripFreePlaces})}"></span>
 				</span>

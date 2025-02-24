@@ -1,11 +1,7 @@
 package cat.institutmarianao.sailing.controllers;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -38,15 +34,12 @@ import cat.institutmarianao.sailing.validation.groups.OnTripCreate;
 import cat.institutmarianao.sailing.validation.groups.OnTripCreateDate;
 import cat.institutmarianao.sailing.validation.groups.OnTripCreateDeparture;
 import jakarta.validation.constraints.Positive;
-import java.util.Calendar;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 
 @Controller
 @SessionAttributes({ "trip", "tripType", "freePlaces", "tripFreePlaces" })
 @RequestMapping(value = "/trips")
 public class TripController {
+	private String REDIRECTHACKERS = "redirect:https://iili.io/3HbEUjj.gif";
 
 	@Autowired
 	private TripService tripService;
@@ -93,10 +86,13 @@ public class TripController {
 	public String bookSelectDeparture(@Validated(OnTripCreateDate.class) @ModelAttribute("trip") Trip trip,
 			BindingResult result, @SessionAttribute("tripType") TripType tripType,
 			@SessionAttribute("freePlaces") Map<Date, Long> freePlaces, ModelMap modelMap) {
-		
+
 		List<BookedPlace> departures;
-		
+
 		try {
+			if (trip.getDate() == null) {
+				throw new java.lang.NullPointerException("El usuario no ha introducido la fecha.");
+			}
 			departures = tripService.findBookedPlacesByTripIdAndDate(tripType.getId(), trip.getDate());
 		} catch (java.lang.NullPointerException e) {
 			modelMap.addAttribute("dateNull", true);
@@ -116,30 +112,28 @@ public class TripController {
 		return "book_departure";
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	@PostMapping("/book/book_places")
 	public String bookSelectPlaces(@Validated(OnTripCreateDeparture.class) @ModelAttribute("trip") Trip trip,
 			BindingResult result, @SessionAttribute("tripType") TripType tripType,
 			@SessionAttribute("freePlaces") Map<Date, Long> freePlaces,
 			@SessionAttribute("tripFreePlaces") Long tripFreePlaces, ModelMap modelMap) {
-		
+
 		Date tripDeparture = trip.getDeparture();
-		
-		// Si modificando el HTML ha conseguido poner una hora con 0 places, le retornamos la página para hackers
-		for (Map.Entry<Date, Long> entry : freePlaces.entrySet()) {
-			Date freePlaceDate = entry.getKey();
-            Long freePlacePlaces = entry.getValue();
-			
-			if (freePlaceDate == tripDeparture) {
-				if (freePlacePlaces == 0) {
-					return "hackers";
-				}
-				break;
-			}
+		Long selectedPlaces = freePlaces.get(tripDeparture);
+
+		// Si modificando el HTML y ha hecho algo de esto:
+		// -- Ha pasado sin poner la hora.
+		// -- Ha puesto una hora no existente (selectedPlaces es null si tripDeparture
+		// no se encuentra en freePlaces).
+		// -- Ha conseguido poner una hora con 0 o negativos places.
+		if (tripDeparture == null || selectedPlaces == null || selectedPlaces <= 0) {
+			return REDIRECTHACKERS;
 		}
-		
-		modelMap.addAttribute("tripFreePlaces", Long.valueOf(trip.getPlaces()));
+
+		modelMap.addAttribute("tripFreePlaces", selectedPlaces);
 		return "book_places";
-		
+
 	}
 
 	@PostMapping("/book/book_save")
@@ -147,8 +141,16 @@ public class TripController {
 			@SessionAttribute("tripType") TripType tripType, @SessionAttribute("freePlaces") Map<Date, Long> freePlaces,
 			@SessionAttribute("tripFreePlaces") Long tripFreePlaces, ModelMap modelMap, SessionStatus sessionStatus) {
 
-		// TODO - Saves a booking
-		return null;
+		// Si modificando el HTML y ha hecho algo de esto:
+		// -- Ha conseguido poner una hora con 0 o negativos places.
+		// -- Ha conseguido poner una hora con más places de los permitidos.
+		if (trip.getPlaces() <= 0 || trip.getPlaces() > tripFreePlaces) {
+			return REDIRECTHACKERS;
+		}
+
+		tripService.save(trip);
+
+		return "redirect:/trips/booked";
 	}
 
 	@GetMapping("/booked")
