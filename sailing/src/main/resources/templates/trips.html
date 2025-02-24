@@ -22,12 +22,16 @@
 	<!--/* TODO - Include AJAX script to load tracking */-->
 
 	<!--/* TODO - Include cancel trip dialog, if user has role CLIENT */-->
+	<nav sec:authorize="hasAnyRole('CLIENT')" th:replace="~{fragments/dialogs :: cancel_trip_dialog}"></nav>
 
 	<!--/* TODO - Include done trip dialog, if user has role ADMIN  */-->
+	<nav sec:authorize="hasAnyRole('ADMIN')" th:replace="~{fragments/dialogs :: trip_done_dialog}"></nav>
 
 	<!--/* TODO - Include reschedule trip dialog, if user has role ADMIN  */-->
+	<nav sec:authorize="hasAnyRole('ADMIN')" th:replace="~{fragments/dialogs :: reschedule_trip_dialog}"></nav>
 
 	<!-- /* TODO - Include tracking dialog */ -->
+	<nav th:replace="~{fragments/dialogs :: tracking_dialog}"></nav>
 
 	<section class="container">
 		<header class="jumbotron" th:replace="~{fragments/template :: header}">
@@ -40,6 +44,7 @@
 			th:replace="~{fragments/template :: heading('Trips')}">Trips</section>
 
 		<!-- /* List all trips (if CLIENT, his owns; if ADMIN, all */ -->
+		
 	</section>
 </body>
 </html>
