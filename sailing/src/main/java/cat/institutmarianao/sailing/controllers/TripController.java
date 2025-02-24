@@ -156,7 +156,7 @@ public class TripController {
 	@GetMapping("/booked")
 	public ModelAndView booked() {
 		ModelAndView trips = new ModelAndView("trips");
-		List<Trip> allTrips = tripService.findAll();
+		List<Trip> allTrips = tripService.findAll(); // TODO - findAll() not working
 		trips.getModelMap().addAttribute("trips", allTrips);
 
 		return trips;
