@@ -1,5 +1,6 @@
 package cat.institutmarianao.sailing.controllers;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -155,8 +157,23 @@ public class TripController {
 
 	@GetMapping("/booked")
 	public ModelAndView booked() {
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
 		ModelAndView trips = new ModelAndView("trips");
-		List<Trip> allTrips = tripService.findAll(); // TODO - findAll() not working
+
+		List<Trip> allTrips;
+
+		if (authorities.stream().anyMatch(ga -> ga.getAuthority().equals("ROLE_ADMIN"))) {
+			allTrips = tripService.findAll();
+		} else {
+
+			String username = authentication.getName();
+
+			allTrips = tripService.findAllByClientUsername(username);
+		}
+
 		trips.getModelMap().addAttribute("trips", allTrips);
 
 		return trips;
