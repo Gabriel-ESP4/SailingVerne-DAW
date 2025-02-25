@@ -3,6 +3,7 @@ package cat.institutmarianao.sailing.controllers;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import cat.institutmarianao.sailing.model.Done;
 import cat.institutmarianao.sailing.model.Rescheduling;
 import cat.institutmarianao.sailing.model.Trip;
 import cat.institutmarianao.sailing.model.TripType;
+import cat.institutmarianao.sailing.model.TripType.Category;
 import cat.institutmarianao.sailing.services.TripService;
 import cat.institutmarianao.sailing.validation.groups.OnActionCreate;
 import cat.institutmarianao.sailing.validation.groups.OnTripCreate;
@@ -176,6 +178,29 @@ public class TripController {
 
 		trips.getModelMap().addAttribute("trips", allTrips);
 
+		Map<Long, Category> tripTypeTypes = new LinkedHashMap<Long, Category>();
+
+		List<TripType> allTripTypes = tripService.getAllTripTypes();
+
+		for (Trip trip : allTrips) {
+			Long typeId = trip.getTypeId();
+
+			tripTypeTypes.put(typeId, Category.GROUP);
+
+		}
+
+		for (TripType tripType : allTripTypes) {
+			Long tripTypeId = tripType.getId();
+
+			if (tripTypeTypes.containsKey(tripTypeId)) {
+				tripTypeTypes.put(tripTypeId, tripType.getCategory());
+			}
+
+		}
+
+		Cancellation cancellation = new Cancellation();
+
+		trips.getModelMap().addAttribute("cancellation", cancellation);
 		return trips;
 	}
 
