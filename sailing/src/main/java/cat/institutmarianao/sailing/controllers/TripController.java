@@ -25,13 +25,13 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
+import cat.institutmarianao.sailing.model.Action;
 import cat.institutmarianao.sailing.model.BookedPlace;
 import cat.institutmarianao.sailing.model.Cancellation;
 import cat.institutmarianao.sailing.model.Done;
 import cat.institutmarianao.sailing.model.Rescheduling;
 import cat.institutmarianao.sailing.model.Trip;
 import cat.institutmarianao.sailing.model.TripType;
-import cat.institutmarianao.sailing.model.TripType.Category;
 import cat.institutmarianao.sailing.services.TripService;
 import cat.institutmarianao.sailing.validation.groups.OnActionCreate;
 import cat.institutmarianao.sailing.validation.groups.OnTripCreate;
@@ -71,9 +71,9 @@ public class TripController {
 	@GetMapping("/book/{trip_type_id}")
 	public ModelAndView bookSelectDate(@PathVariable(name = "trip_type_id", required = true) Long tripTypeId) {
 
-		ModelAndView bookDate = new ModelAndView("book_date");
+		ModelAndView bookDateMnV = new ModelAndView("book_date");
 		TripType tripType = tripService.getTripTypeById(tripTypeId);
-		bookDate.getModelMap().addAttribute("tripType", tripType);
+		bookDateMnV.getModelMap().addAttribute("tripType", tripType);
 		Trip trip = new Trip();
 
 		trip.setTypeId(tripTypeId);
@@ -81,9 +81,9 @@ public class TripController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		trip.setClientUsername(authentication.getName());
 
-		bookDate.getModelMap().addAttribute("trip", trip);
+		bookDateMnV.getModelMap().addAttribute("trip", trip);
 
-		return bookDate;
+		return bookDateMnV;
 	}
 
 	@PostMapping("/book/book_departure")
@@ -163,72 +163,101 @@ public class TripController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-		ModelAndView trips = new ModelAndView("trips");
-
-		List<Trip> allTrips;
-
+		Boolean hasAdminRole = false;
 		if (authorities.stream().anyMatch(ga -> ga.getAuthority().equals("ROLE_ADMIN"))) {
-			allTrips = tripService.findAll();
-		} else {
-
-			String username = authentication.getName();
-
-			allTrips = tripService.findAllByClientUsername(username);
+			hasAdminRole = true;
 		}
 
-		trips.getModelMap().addAttribute("trips", allTrips);
+		ModelAndView tripsMnV = new ModelAndView("trips");
 
-		Map<Long, Category> tripTypeTypes = new LinkedHashMap<Long, Category>();
+		////////////////////////////////////////////
+
+		List<Trip> allTrips;
+		String username = authentication.getName();
+
+		if (hasAdminRole) {
+			allTrips = tripService.findAll();
+
+			Done done = new Done();
+			done.setPerformer(username);
+			Rescheduling rescheduling = new Rescheduling();
+			rescheduling.setPerformer(username);
+			tripsMnV.getModelMap().addAttribute("done", done);
+			tripsMnV.getModelMap().addAttribute("rescheduling", rescheduling);
+		} else {
+			allTrips = tripService.findAllByClientUsername(username);
+
+			Cancellation cancellation = new Cancellation();
+			cancellation.setPerformer(username);
+			tripsMnV.getModelMap().addAttribute("cancellation", cancellation);
+		}
+
+		////////////////////////////////////////////
+
+		Map<Long, TripType> foundTripTypes = new LinkedHashMap<Long, TripType>();
 
 		List<TripType> allTripTypes = tripService.getAllTripTypes();
 
 		for (Trip trip : allTrips) {
 			Long typeId = trip.getTypeId();
 
-			tripTypeTypes.put(typeId, Category.GROUP);
-
+			foundTripTypes.put(typeId, null);
 		}
 
 		for (TripType tripType : allTripTypes) {
 			Long tripTypeId = tripType.getId();
 
-			if (tripTypeTypes.containsKey(tripTypeId)) {
-				tripTypeTypes.put(tripTypeId, tripType.getCategory());
+			if (foundTripTypes.containsKey(tripTypeId)) {
+				foundTripTypes.put(tripTypeId, tripType);
 			}
-
 		}
 
-		Cancellation cancellation = new Cancellation();
+		////////////////////////////////////////////
 
-		trips.getModelMap().addAttribute("cancellation", cancellation);
-		return trips;
+		tripsMnV.getModelMap().addAttribute("trips", allTrips);
+		tripsMnV.getModelMap().addAttribute("tripTypes", foundTripTypes);
+		tripsMnV.getModelMap().addAttribute("tripType", allTripTypes.get(0));
+		tripsMnV.getModelMap().addAttribute("hasAdminRole", hasAdminRole);
+		tripsMnV.getModelMap().addAttribute("hasUserRole", !hasAdminRole);
+
+		////////////////////////////////////////////
+
+		return tripsMnV;
 	}
 
 	@PostMapping("/cancel")
 	public String cancelTrip(@Validated Cancellation cancellation) {
 
 		// TODO - Cancel a trip (add a CANCELLATION action to its tracking)
-		return null;
+		tripService.track(cancellation);
+		return "redirect:/trips/booked";
 	}
 
 	@PostMapping("/done")
 	public String doneTrip(@Validated(OnActionCreate.class) Done done) {
 
 		// TODO - Do a trip (add a DONE action to its tracking)
-		return null;
+		tripService.track(done);
+		return "redirect:/trips/booked";
 	}
 
 	@PostMapping("/reschedule")
 	public String saveAction(@Validated(OnActionCreate.class) Rescheduling rescheduling) {
 
 		// TODO - Reschedule a trip (add a RESCHEDULE action to its tracking)
-		return null;
+		tripService.track(rescheduling);
+		return "redirect:/trips/booked";
 	}
 
 	@GetMapping("/tracking/{id}")
 	public String showContentPart(@PathVariable(name = "id", required = true) @Positive Long id, ModelMap modelMap) {
 
+		List<Action> tracking = tripService.findTrackingById(id);
+
+		modelMap.addAttribute("tripId", id);
+		modelMap.addAttribute("tracking", tracking);
+
 		// TODO - Retrieve the tracking for the trip id with id id
-		return null;
+		return "fragments/dialogs :: tracking_dialog_body";
 	}
 }

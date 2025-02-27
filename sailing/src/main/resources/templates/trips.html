@@ -20,18 +20,22 @@
 </head>
 <body>
 	<!--/* TODO - Include AJAX script to load tracking */-->
+	<script th:src="@{/js/trips.js}"></script>
 
 	<!--/* TODO - Include cancel trip dialog, if user has role CLIENT */-->
-	<nav sec:authorize="hasAnyRole('CLIENT')" th:replace="~{fragments/dialogs :: cancel_trip_dialog}"></nav>
+	<div sec:authorize="hasAnyRole('CLIENT')"
+		th:replace="~{fragments/dialogs :: cancel_trip_dialog}"></div>
 
 	<!--/* TODO - Include done trip dialog, if user has role ADMIN  */-->
-	<nav sec:authorize="hasAnyRole('ADMIN')" th:replace="~{fragments/dialogs :: trip_done_dialog}"></nav>
+	<div sec:authorize="hasAnyRole('ADMIN')"
+		th:replace="~{fragments/dialogs :: trip_done_dialog}"></div>
 
 	<!--/* TODO - Include reschedule trip dialog, if user has role ADMIN  */-->
-	<nav sec:authorize="hasAnyRole('ADMIN')" th:replace="~{fragments/dialogs :: reschedule_trip_dialog}"></nav>
+	<div sec:authorize="hasAnyRole('ADMIN')"
+		th:replace="~{fragments/dialogs :: reschedule_trip_dialog}"></div>
 
 	<!-- /* TODO - Include tracking dialog */ -->
-	<nav th:replace="~{fragments/dialogs :: tracking_dialog}"></nav>
+	<div th:replace="~{fragments/dialogs :: tracking_dialog}"></div>
 
 	<section class="container">
 		<header class="jumbotron" th:replace="~{fragments/template :: header}">
@@ -44,8 +48,53 @@
 			th:replace="~{fragments/template :: heading('Trips')}">Trips</section>
 
 		<!-- /* List all trips (if CLIENT, his owns; if ADMIN, all */ -->
-		
-		
+		<table
+			class="table table-striped table-bordered table-condensed table-responsive bg-frosted-glass">
+			<thead>
+				<tr>
+					<th th:text="#{trips.table.head.id}">#</th>
+					<th th:text="#{trips.table.head.date}">Date</th>
+					<th th:text="#{trips.table.head.departure}">Departure</th>
+					<th th:text="#{trips.table.head.places}">Places</th>
+					<th th:if="${hasAdminRole}" th:text="#{login.username}">Username</th>
+					<th th:text="#{trips.table.head.type.title}">Type</th>
+					<th th:text="#{trips.table.head.type.category}">Category</th>
+					<th th:text="#{trips.table.head.status}">Status</th>
+					<th th:text="#{trips.table.head.actions}">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:if="${!trips.isEmpty()}" th:each="trip:${trips}">
+					<td th:text="${trip.id}">#</td>
+					<td th:text="${trip.date}">Date value</td>
+					<td th:text="${trip.departure}">Departure</td>
+					<td th:text="${trip.places}">Places</td>
+					<td th:if="${hasAdminRole}" th:text="${trip.clientUsername}">Username</td>
+					<td th:text="${tripTypes.get(trip.typeId).description}">Type</td>
+					<td th:text="${tripTypes.get(trip.typeId).category}">Category</td>
+					<td>
+						<a href="#" th:onclick="|ajax_show_tracking('${trip.id}')|" th:text="${trip.status}"
+						th:class="'text-decoration-underline '+${#strings.equals(trip.status, 'RESERVED')?'text-primary':
+							#strings.equals(trip.status, 'CANCELLED')?'text-danger':#strings.equals(trip.status, 'RESCHEDULED')?'text-warning':'text-success'}">
+							Status</a>
+					</td>
+					<td th:if="${hasUserRole}">
+						<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelTripDialog" th:data-bs-tripId="${trip.id}">Cancel trip dialog</button>
+					</td>
+					<td th:if="${hasAdminRole}">
+						<button th:if="${!#strings.equals(trip.status, 'DONE') and !#strings.equals(trip.status, 'CANCELLED')}" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tripDoneDialog" th:data-bs-tripId="${trip.id}">Trip done dialog</button>
+
+						<button th:if="${!#strings.equals(trip.status, 'DONE') and !#strings.equals(trip.status, 'CANCELLED')}" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#rescheduleTripDialog" th:data-bs-tripId="${trip.id}">Reschedule trip dialog</button>
+					</td>
+				</tr>
+				<tr th:if="${trips.isEmpty()}">
+					<td th:if="${hasUserRole}" th:text="#{parts.trip.no.trips.user}"
+						class="centerText" colspan="9">You have no trips</td>
+					<td th:if="${hasAdminRole}" th:text="#{parts.trip.no.trips.admin}"
+						class="centerText" colspan="8">There are no trips</td>
+				</tr>
+			</tbody>
+		</table>
 	</section>
 </body>
 </html>

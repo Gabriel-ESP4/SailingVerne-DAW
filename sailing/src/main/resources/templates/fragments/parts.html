@@ -22,7 +22,7 @@
 <div class="row" th:fragment="tripTypes(tripTypes)">
 	<div th:each="tripType, iStat  : ${tripTypes}"
 		class="col-sm-4 col-md-3 my-2">
-		<div class="card">
+		<div class="card bg-frosted-glass">
 			<div class="card-header">
 				<h5 th:text="${tripType.title}">2 hours trip</h5>
 			</div>
@@ -77,66 +77,6 @@
 		</div>
 	</div>
 
-</div>
-<div class="admin" th:fragment="trips(trips)">
-	<table
-		class="table table-striped table-bordered table-condensed table-responsive">
-		<thead>
-			<tr>
-				<th th:text="#{trips.table.head.id}">#</th>
-				<th th:text="#{trips.table.head.date}">Date</th>
-				<th th:text="#{trips.table.head.departure}">Departure</th>
-				<th th:text="#{trips.table.head.places}">Places</th>
-				<th th:text="#{trips.table.head.type.title}">Type</th>
-				<th th:text="#{trips.table.head.type.category}">Category</th>
-				<th th:text="#{trips.table.head.status}">Status</th>
-				<th th:text="#{trips.table.head.actions}">Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr th:each="trip : ${trips}">
-				<td th:text="${trip.id}">-</td>
-				<td th:text="${trip.date}">-</td>
-				<td th:text="${trip.departure}">-</td>
-				<td th:text="${trip.places}">-</td>
-				<td th:if="${#strings.equals(user.role, 'ADMIN')}" th:text="${trip.clientUsername}"></td>
-				<td th:text="${tripType  hacerrrrr a partir de aquiiiiii}">-</td>
-				<td th:text="${tripType.		}">-</td>
-				<td th:text="${#strings.equals(user.role, 'CLIENT')?user.phone:'-'}">-</td>
-				<td class="text-center">
-					<button th:data-bs-username="${user.username}" type="button"
-						class="btn btn-danger btn-sm" data-bs-toggle="modal"
-						data-bs-target="#removeUserDialog">
-						<i class="bi bi-person-x"></i>
-					</button>
-				</td>
-			</tr>
-			<tr th:remove="all">
-				<td>2</td>
-				<td>Client</td>
-				<td>genis</td>
-				<td>Genís Esteve i Prats</td>
-				<td>1515</td>
-				<td class="text-center">
-					<button type="button" class="btn btn-danger btn-sm">
-						<i class="bi bi-person-dash"></i>
-					</button>
-				</td>
-			</tr>
-			<tr th:remove="all">
-				<td>3</td>
-				<td>Admin</td>
-				<td>laia</td>
-				<td>-</td>
-				<td>-</td>
-				<td class="text-center">
-					<button type="button" class="btn btn-danger btn-sm">
-						<i class="bi bi-person-dash"></i>
-					</button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
 </div>
 <body>
 </body>

@@ -22,13 +22,13 @@
 
 <body>
 	<div class="container">
-		<header th:fragment="header" class="mt-4 p-5 bg-light rounded">
+		<header th:fragment="header" class="mt-4 p-5 bg-frosted-glass rounded">
 			<h1 th:text="#{template.header.title}">Header title</h1>
 			<p th:text="#{template.header.subtitle}">Header subtitle</p>
 		</header>
 
 		<nav th:fragment="navbar"
-			class="navbar navbar-expand-lg sticky-top bg-light rounded my-1">
+			class="navbar navbar-expand-lg sticky-top bg-frosted-glass rounded my-1">
 			<div class="container-fluid">
 				<ul class="navbar-nav">
 
@@ -87,7 +87,7 @@
 						role="button" href="#"> <i class="bi bi-flag"></i> <span
 							th:text="#{template.navbar.language}">language </span>
 					</a>
-						<ul class="dropdown-menu">
+						<ul class="dropdown-menu bg-frosted-glass">
 							<li><a class="dropdown-item"
 								th:classappend="${#strings.contains(#locale.toString(),'es')} ? 'disabled'"
 								href="?language=es"> <i class="bi bi-globe"></i> <span
@@ -113,7 +113,7 @@
 
 			</div>
 		</nav>
-		<div class="card my-1" th:fragment="heading(title)">
+		<div class="card my-1 bg-frosted-glass" th:fragment="heading(title)">
 			<h5 class="card-header">
 				<span th:text="${title}">Welcome</span>
 			</h5>
